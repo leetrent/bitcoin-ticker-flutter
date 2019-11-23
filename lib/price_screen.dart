@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'coin_data.dart';
@@ -10,13 +13,47 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
 
-  List<DropdownMenuItem<String>> createDropdownMenuItems() {
+  DropdownButton<String> createAndroidDropdown() {
+    return DropdownButton<String>(
+      value: this.selectedCurrency,
+      items: this.createAndroidDropdownItems(),
+      onChanged: (value) {
+        print(value);
+        setState(
+          () {
+            this.selectedCurrency = value;
+          },
+        );
+      },
+    );
+  }
+
+  List<DropdownMenuItem<String>> createAndroidDropdownItems() {
     List<DropdownMenuItem<String>> dropdownMenuItems = [];
     for (String currency in currenciesList) {
       dropdownMenuItems
           .add(DropdownMenuItem(child: Text(currency), value: currency));
     }
     return dropdownMenuItems;
+  }
+
+  CupertinoPicker createIOSPicker() {
+    return CupertinoPicker(
+      backgroundColor: Colors.lightBlue,
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: createIOSPickerItems(),
+    );
+  }
+
+  List<Text> createIOSPickerItems() {
+    List<Text> iosPickerItems = [];
+    for (String currency in currenciesList) {
+      iosPickerItems.add(Text(currency));
+    }
+    return iosPickerItems;
   }
 
   @override
@@ -55,16 +92,9 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: DropdownButton<String>(
-              value: this.selectedCurrency,
-              items: this.createDropdownMenuItems(),
-              onChanged: (value) {
-                print(value);
-                setState(() {
-                  this.selectedCurrency = value;
-                });
-              },
-            ),
+            child: (Platform.isIOS)
+                ? this.createIOSPicker()
+                : this.createAndroidDropdown(),
           ),
         ],
       ),
