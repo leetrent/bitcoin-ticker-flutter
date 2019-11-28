@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'coin_data.dart';
+import 'crypto_card.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -12,7 +13,8 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'AUD';
-  String valueOfOneBitcoin;
+  Map<String, String> coinValues = {};
+  bool isWaiting = false;
 
   DropdownButton<String> createAndroidDropdown() {
     return DropdownButton<String>(
@@ -63,10 +65,13 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   void getData() async {
+    this.isWaiting = true;
     try {
-      String value = await CoinData().getCoinData(this.selectedCurrency);
+      Map<String, String> data =
+          await CoinData().getCoinData(this.selectedCurrency);
+      this.isWaiting = false;
       setState(() {
-        this.valueOfOneBitcoin = value;
+        this.coinValues = data;
       });
     } catch (e) {
       print(e);
@@ -89,26 +94,25 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              CryptoCard(
+                cryptoCurrency: cryptoList[0],
+                value: (this.isWaiting) ? ('?') : (this.coinValues['BTC']),
+                selectedCurrency: this.selectedCurrency,
               ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $valueOfOneBitcoin $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
+              CryptoCard(
+                cryptoCurrency: cryptoList[1],
+                value: (this.isWaiting) ? ('?') : (this.coinValues['ETH']),
+                selectedCurrency: this.selectedCurrency,
               ),
-            ),
+              CryptoCard(
+                cryptoCurrency: cryptoList[2],
+                value: (this.isWaiting) ? ('?') : (this.coinValues['LTC']),
+                selectedCurrency: this.selectedCurrency,
+              ),
+            ],
           ),
           Container(
             height: 150.0,

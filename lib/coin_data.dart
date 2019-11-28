@@ -34,30 +34,60 @@ const List<String> cryptoList = [
 ];
 
 const bitcoinAverageURL =
-    'https://apiv2.bitcoinaverage.com/indices/global/ticker/BTC';
+    'https://apiv2.bitcoinaverage.com/indices/global/ticker';
+
+//class CoinData {
+//  Future getCoinData(String selectedCurrency) async {
+//    String url = '$bitcoinAverageURL/BTC$selectedCurrency';
+//    print('[CoinData][getCoinData] => (url): $url');
+//
+//    http.Response response = await http.get(url);
+//    print('[CoinData][getCoinData] => (response.statusCode): ' +
+//        response.statusCode.toString());
+//
+//    if (response.statusCode == 200) {
+//      var decodedData = jsonDecode(response.body);
+//      double lastPrice = decodedData['last'];
+//
+//      print('[CoinData][getCoinData] => (lastPrice): ' + lastPrice.toString());
+//
+//      FlutterMoneyFormatter fmf = FlutterMoneyFormatter(amount: lastPrice);
+//
+//      //return lastPrice.toStringAsFixed(0);
+//      //return fmf.output.nonSymbol;
+//      return fmf.output.withoutFractionDigits;
+//    } else {
+//      throw 'Error: $response.statusCode';
+//    }
+//  }
+//}
 
 class CoinData {
   Future getCoinData(String selectedCurrency) async {
-    String url = '$bitcoinAverageURL$selectedCurrency';
-    print('[CoinData][getCoinData] => (url): $url');
+    Map<String, String> cryptoPrices = {};
 
-    http.Response response = await http.get(url);
-    print('[CoinData][getCoinData] => (response.statusCode): ' +
-        response.statusCode.toString());
+    for (String crypto in cryptoList) {
+      String requestURL = '$bitcoinAverageURL/$crypto$selectedCurrency';
+      print('[CoinData][getCoinData] => (requestURL): $requestURL');
 
-    if (response.statusCode == 200) {
-      var decodedData = jsonDecode(response.body);
-      double lastPrice = decodedData['last'];
+      http.Response response = await http.get(requestURL);
+      print('[CoinData][getCoinData] => (response.statusCode): ' +
+          response.statusCode.toString());
 
-      print('[CoinData][getCoinData] => (lastPrice): ' + lastPrice.toString());
+      if (response.statusCode == 200) {
+        var decodedData = jsonDecode(response.body);
+        double lastPrice = decodedData['last'];
+        print('[CoinData][getCoinData] => (lastPrice): ' +
+            lastPrice.toString() +
+            ' (selectedCurrency): ' +
+            selectedCurrency);
 
-      FlutterMoneyFormatter fmf = FlutterMoneyFormatter(amount: lastPrice);
-
-      //return lastPrice.toStringAsFixed(0);
-      //return fmf.output.nonSymbol;
-      return fmf.output.withoutFractionDigits;
-    } else {
-      throw 'Error: $response.statusCode';
+        FlutterMoneyFormatter fmf = FlutterMoneyFormatter(amount: lastPrice);
+        cryptoPrices[crypto] = fmf.output.withoutFractionDigits;
+      } else {
+        throw 'Error: $response.statusCode';
+      }
     }
+    return cryptoPrices;
   }
 }
