@@ -11,7 +11,7 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selectedCurrency = 'USD';
+  String selectedCurrency = 'AUD';
   String valueOfOneBitcoin;
 
   DropdownButton<String> createAndroidDropdown() {
@@ -45,6 +45,10 @@ class _PriceScreenState extends State<PriceScreen> {
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
         print(selectedIndex);
+        setState(() {
+          this.selectedCurrency = currenciesList[selectedIndex];
+          this.getData();
+        });
       },
       children: createIOSPickerItems(),
     );
